@@ -24,6 +24,13 @@
   }
   .wrap { max-width:480px; margin:0 auto; }
 
+  /* 공정위 대가성 표시 — 작게, 그러나 최상단에 (하단에만 두면 미흡 판정 소지) */
+  .disclosure {
+    margin:0 -10px; padding:5px 12px;
+    background:#0e131d; border-bottom:1px solid var(--line);
+    font-size:9.5px; color:var(--dim); text-align:center; line-height:1.5;
+  }
+
   /* ── 히어로: 총 할인액이 후킹 포인트 (개별 상품보다 총액이 크게 느껴진다) */
   header {
     text-align:center; padding:20px 14px 18px; margin:0 -10px 14px;
@@ -179,6 +186,11 @@
 </style>
 </head>
 <body>
+  <!-- 공정위 표시: 대가성 고지는 콘텐츠를 '보기 전에' 인식돼야 한다 → 최상단 -->
+  <p class="disclosure">
+    이 포스팅은 네이버 쇼핑 커넥트 활동의 일환으로, 판매 발생 시 수수료를 제공받습니다.
+  </p>
+
   <div class="wrap">
     <header>
       <div class="lockup">
@@ -191,7 +203,7 @@
       <span class="official">전 상품 삼성전자 공식파트너 스토어 판매 · 무료배송</span>
       <div class="total">
         <span class="lead">지금 이 링크로 사면</span>
-        <b>최대 21,910,200원</b>
+        <b>최대 21,965,200원</b>
         <span class="lead2">아끼고 구매할 수 있습니다</span>
         <span class="tiny">특가 53개 전체 기준 · 쿠폰 적용가</span>
       </div>
@@ -804,7 +816,7 @@
         <a class="card" href="https://naver.me/FNtfPVnw" target="_blank" rel="noopener sponsored">
           <div class="thumb">
             <img src="data:image/jpeg;base64,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" alt="" loading="lazy">
-            <span class="off">35%</span>
+            <span class="off">37%</span>
           </div>
           <div class="info">
             <h3><span class="hidden">히든특가</span>무풍 에어컨</h3>
@@ -812,8 +824,8 @@
             <div class="meta"><span class="proof">리뷰 4점↑ 100%</span></div>
             <div class="price">
               <span class="was">3,299,000</span>
-              <strong class="now">2,129,000<em>원</em></strong>
-              <span class="save">1,170,000원↓</span>
+              <strong class="now">2,074,000<em>원</em></strong>
+              <span class="save">1,225,000원↓</span>
             </div>
             <div class="perks"><span class="perk card">행사카드 시 최대 10% 추가↓</span><span class="perk">적립 96,590원</span></div>
           </div>
@@ -1207,7 +1219,7 @@
       </section>
 
     <footer>
-      본 페이지의 링크는 제휴 링크이며, 구매 시 일정액의 수수료를 받습니다.<br>
+      이 포스팅은 네이버 쇼핑 커넥트 활동의 일환으로, 판매 발생 시 수수료를 제공받습니다.<br>
       가격·재고·쿠폰은 판매처 사정으로 수시로 변동됩니다. (07.14 확인 기준)
     </footer>
   </div>
