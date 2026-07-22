@@ -211,6 +211,9 @@
   body.anim .card.in, body.anim .kpi.in { opacity:1; transform:none; }
   body.anim .kpi:nth-child(2) { transition-delay:.07s; }
   body.anim .kpi:nth-child(3) { transition-delay:.14s; }
+  /* 슬롯5: 카드가 등장하는 순간 '쿠폰가 열기' 칩이 오른쪽으로 두 번 nudge(탭 유도). 이후 정지. */
+  body.anim .card.in .go { animation:dc-nudge .5s .18s ease-in-out 2; }
+  @keyframes dc-nudge { 0%,100%{transform:translateX(0)} 50%{transform:translateX(4px)} }
 
   @media (prefers-reduced-motion:reduce) {
     * { transition:none !important; animation:none !important; }
