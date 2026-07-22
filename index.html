@@ -182,7 +182,29 @@
     margin-top:22px; padding-top:12px; border-top:1px solid var(--line);
     text-align:center; font-size:10px; color:var(--dim); line-height:1.7;
   }
-  @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
+  /* ── 인라인 폴리시(자기완결, 로티 감성) ──
+     슬롯1: 총 할인액 count-up(하단 JS). 슬롯3: '단독 특가' 등장 pop + 골드 shimmer 1회 후 정지. */
+  h1 em {
+    display:inline-block; color:var(--deal);
+    animation:dc-pop .5s cubic-bezier(.94,.75,.34,.94) both;
+  }
+  @supports ((-webkit-background-clip:text) or (background-clip:text)) {
+    h1 em {
+      background:linear-gradient(90deg,#ff3b4e 0 40%,#ffd97a 50%,#ff3b4e 60% 100%);
+      background-size:220% auto; background-repeat:no-repeat; background-position:120% center;
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+      animation:dc-pop .5s cubic-bezier(.94,.75,.34,.94) both,
+                dc-shimmer 1.15s .5s ease-out 1 forwards;
+    }
+  }
+  @keyframes dc-pop { 0%{transform:scale(.9);opacity:0} 100%{transform:scale(1);opacity:1} }
+  @keyframes dc-shimmer { from{background-position:120% center} to{background-position:-120% center} }
+
+  @media (prefers-reduced-motion:reduce) {
+    * { transition:none !important; animation:none !important; }
+    /* 감속 옵션: shimmer/pop 끄고 '단독 특가'를 solid 딜레드로 확정(투명 텍스트 방지) */
+    h1 em { background:none !important; color:var(--deal) !important; -webkit-text-fill-color:var(--deal) !important; }
+  }
 </style>
 </head>
 <body>
@@ -198,14 +220,14 @@
       <span class="official">전 상품 삼성전자 공식파트너 스토어 판매 · 무료배송</span>
       <div class="total">
         <span class="lead">지금 이 링크로 사면</span>
-        <b>최대 25,791,850원</b>
+        <b>최대 <span class="cu" data-to="25791850">25,791,850</span>원</b>
         <span class="lead2">아끼고 구매할 수 있습니다</span>
         <span class="tiny">특가 62개 전체 기준 · 쿠폰 적용가</span>
       </div>
       <div class="kpis">
         <div class="kpi"><b>38%</b><span>최대 할인율</span></div>
         <div class="kpi"><b>119,650원~</b><span>최저가</span></div>
-        <div class="kpi"><b>07.17</b><span>가격 확인</span></div>
+        <div class="kpi"><b>07.22</b><span>가격 확인</span></div>
       </div>
     </header>
 
@@ -1382,8 +1404,26 @@
 
     <footer>
       이 포스팅은 네이버 쇼핑 커넥트 활동의 일환으로, 판매 발생 시 수수료를 제공받습니다.<br>
-      가격·재고·쿠폰은 판매처 사정으로 수시로 변동됩니다. (07.17 확인 기준)
+      가격·재고·쿠폰은 판매처 사정으로 수시로 변동됩니다. (07.22 확인 기준)
     </footer>
   </div>
+  <script>
+  (function(){
+    var el = document.querySelector('.total b .cu');
+    if(!el) return;
+    var to = parseInt(el.getAttribute('data-to'), 10) || 0;
+    var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if(rm){ el.textContent = to.toLocaleString('ko-KR'); return; }
+    var dur = 1100, t0 = null, ease = function(x){ return 1 - Math.pow(1 - x, 3); };
+    el.textContent = '0';
+    function step(ts){
+      if(t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / dur);
+      el.textContent = Math.round(to * ease(p)).toLocaleString('ko-KR');
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  })();
+  </script>
 </body>
 </html>
