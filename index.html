@@ -183,27 +183,39 @@
     text-align:center; font-size:10px; color:var(--dim); line-height:1.7;
   }
   /* ── 인라인 폴리시(자기완결, 로티 감성) ──
-     슬롯1: 총 할인액 count-up(하단 JS). 슬롯3: '단독 특가' 등장 pop + 골드 shimmer 1회 후 정지. */
+     슬롯1 총할인액 count-up+착지 pop · 슬롯3 '단독 특가' 등장+골드 shimmer · 스크롤 진입 등장. */
   h1 em {
     display:inline-block; color:var(--deal);
     animation:dc-pop .5s cubic-bezier(.94,.75,.34,.94) both;
   }
   @supports ((-webkit-background-clip:text) or (background-clip:text)) {
     h1 em {
-      background:linear-gradient(90deg,#ff3b4e 0 40%,#ffd97a 50%,#ff3b4e 60% 100%);
-      background-size:220% auto; background-repeat:no-repeat; background-position:120% center;
+      background:linear-gradient(90deg,#ff3b4e 0 38%,#ffe08a 50%,#ff3b4e 62% 100%);
+      background-size:240% auto; background-repeat:no-repeat; background-position:120% center;
       -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
       animation:dc-pop .5s cubic-bezier(.94,.75,.34,.94) both,
-                dc-shimmer 1.15s .5s ease-out 1 forwards;
+                dc-shimmer 1.3s .4s ease-out 1 forwards;
     }
   }
-  @keyframes dc-pop { 0%{transform:scale(.9);opacity:0} 100%{transform:scale(1);opacity:1} }
+  @keyframes dc-pop { 0%{transform:scale(.85);opacity:0} 100%{transform:scale(1);opacity:1} }
   @keyframes dc-shimmer { from{background-position:120% center} to{background-position:-120% center} }
+  /* 카운트업 착지 순간 살짝 커졌다 돌아옴 */
+  .total b.cu-done { animation:dc-numpop .4s cubic-bezier(0,.65,.51,.99); }
+  @keyframes dc-numpop { 0%{transform:scale(1)} 45%{transform:scale(1.06)} 100%{transform:scale(1)} }
+
+  /* 스크롤 진입 등장 — body.anim 이 붙을 때만(=JS 성공). no-JS/CSP 차단이면 전부 그대로 보임 */
+  body.anim .card, body.anim .kpi {
+    opacity:0; transform:translateY(12px);
+    transition:opacity .45s ease-out, transform .45s cubic-bezier(.2,.75,.34,.94);
+  }
+  body.anim .card.in, body.anim .kpi.in { opacity:1; transform:none; }
+  body.anim .kpi:nth-child(2) { transition-delay:.07s; }
+  body.anim .kpi:nth-child(3) { transition-delay:.14s; }
 
   @media (prefers-reduced-motion:reduce) {
     * { transition:none !important; animation:none !important; }
-    /* 감속 옵션: shimmer/pop 끄고 '단독 특가'를 solid 딜레드로 확정(투명 텍스트 방지) */
     h1 em { background:none !important; color:var(--deal) !important; -webkit-text-fill-color:var(--deal) !important; }
+    body.anim .card, body.anim .kpi { opacity:1 !important; transform:none !important; }
   }
 </style>
 </head>
@@ -1409,20 +1421,37 @@
   </div>
   <script>
   (function(){
-    var el = document.querySelector('.total b .cu');
-    if(!el) return;
-    var to = parseInt(el.getAttribute('data-to'), 10) || 0;
     var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-    if(rm){ el.textContent = to.toLocaleString('ko-KR'); return; }
-    var dur = 1100, t0 = null, ease = function(x){ return 1 - Math.pow(1 - x, 3); };
-    el.textContent = '0';
-    function step(ts){
-      if(t0 === null) t0 = ts;
-      var p = Math.min(1, (ts - t0) / dur);
-      el.textContent = Math.round(to * ease(p)).toLocaleString('ko-KR');
-      if(p < 1) requestAnimationFrame(step);
+
+    // ① 히어로 총 할인액 count-up (tabular-nums로 자릿수 안정, 착지 시 pop)
+    var el = document.querySelector('.total b .cu');
+    if(el){
+      var to = parseInt(el.getAttribute('data-to'), 10) || 0;
+      if(rm){ el.textContent = to.toLocaleString('ko-KR'); }
+      else {
+        var dur = 1400, t0 = null, ease = function(x){ return 1 - Math.pow(1 - x, 3); };
+        el.textContent = '0';
+        var step = function(ts){
+          if(t0 === null) t0 = ts;
+          var p = Math.min(1, (ts - t0) / dur);
+          el.textContent = Math.round(to * ease(p)).toLocaleString('ko-KR');
+          if(p < 1){ requestAnimationFrame(step); }
+          else if(el.parentNode){ el.parentNode.classList.add('cu-done'); }
+        };
+        requestAnimationFrame(step);
+      }
     }
-    requestAnimationFrame(step);
+
+    // ② 스크롤 진입 등장 — 성공 시에만 body.anim 부여(실패/차단 시 전부 그대로 보임)
+    if(!rm && 'IntersectionObserver' in window){
+      document.body.classList.add('anim');
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      document.querySelectorAll('.card, .kpi').forEach(function(n){ io.observe(n); });
+    }
   })();
   </script>
 </body>
